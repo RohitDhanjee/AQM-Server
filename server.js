@@ -79,7 +79,7 @@ const PORT = process.env.PORT || 5000;
 
 // ✅ Middleware
 app.use(express.json());
-app.use(cors({ origin: "*" })); // Allow all origins (modify for security)
+// app.use(cors({ origin: "*" })); // Allow all origins (modify for security)
 // Enable CORS for all routes
 app.use(cors({
   origin: '*', // During development, you can use * to allow all origins
