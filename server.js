@@ -68,6 +68,9 @@ const express = require("express");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
+const fs = require("fs");
+const multer = require("multer");
 require("dotenv").config();
 // const Sensor = require("./models/Sensor");  // Ensure the correct path
 
@@ -193,6 +196,36 @@ app.get("/api/sensors/all", async (req, res) => {
         console.error("❌ Error fetching all sensor data:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
+});
+
+// Storage config for firmware files
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadPath = path.join(__dirname, "firmware");
+        if (!fs.existsSync(uploadPath)) fs.mkdirSync(uploadPath);
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        cb(null, "firmware.bin"); // Always overwrite with latest firmware
+    }
+});
+const upload = multer({ storage });
+
+// Upload route (Dashboard -> Backend)
+app.post("/api/firmware/upload", upload.single("firmware"), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: "No firmware file uploaded" });
+    }
+    res.status(200).json({ message: "✅ Firmware uploaded successfully" });
+});
+
+// Serve firmware for ESP32 OTA download
+app.get("/api/firmware/latest", (req, res) => {
+    const firmwarePath = path.join(__dirname, "firmware", "firmware.bin");
+    if (!fs.existsSync(firmwarePath)) {
+        return res.status(404).json({ error: "No firmware available" });
+    }
+    res.sendFile(firmwarePath);
 });
 
 
