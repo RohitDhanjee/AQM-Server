@@ -134,7 +134,7 @@ app.post("/api/sensors", async (req, res) => {
 // ✅ Route to Fetch Latest 20 Sensor Records for Frontend
 app.get("/api/sensors", async (req, res) => {
     try {
-        const data = await SensorData.find().sort({ timestamp: -1 }).limit(20);
+        const data = await SensorData.find().sort({ timestamp: -1 });
         if (!data.length) return res.status(404).json({ error: "No sensor data found" });
 
         res.json(data);
