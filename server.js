@@ -242,17 +242,17 @@ app.get("/api/firmware/latest", (req, res) => {
             return;
         }
 
-        console.log("✅ Firmware sent. Scheduling deletion in 1 minute...");
+        console.log("✅ Firmware sent. Scheduling deletion in 1 seconds...");
 
         setTimeout(() => {
             fs.unlink(firmwarePath, (unlinkErr) => {
                 if (unlinkErr) {
                     console.error("❌ Error deleting firmware:", unlinkErr);
                 } else {
-                    console.log("🗑️ Firmware deleted after 1 minute.");
+                    console.log("🗑️ Firmware deleted after 1 seconds.");
                 }
             });
-        }, 5000); // 5 seconds
+        }, 1000); // 1 seconds
     });
 });
 
