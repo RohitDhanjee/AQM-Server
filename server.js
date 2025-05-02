@@ -219,13 +219,41 @@ app.post("/api/firmware/upload", upload.single("firmware"), (req, res) => {
     res.status(200).json({ message: "✅ Firmware uploaded successfully" });
 });
 
-// Serve firmware for ESP32 OTA download
+// // Serve firmware for ESP32 OTA download
+// app.get("/api/firmware/latest", (req, res) => {
+//     const firmwarePath = path.join(__dirname, "firmware", "firmware.bin");
+//     if (!fs.existsSync(firmwarePath)) {
+//         return res.status(404).json({ error: "No firmware available" });
+//     }
+//     res.sendFile(firmwarePath);
+// });
+
+// Serve firmware and delete it 1 minute after it's downloaded
 app.get("/api/firmware/latest", (req, res) => {
     const firmwarePath = path.join(__dirname, "firmware", "firmware.bin");
+
     if (!fs.existsSync(firmwarePath)) {
         return res.status(404).json({ error: "No firmware available" });
     }
-    res.sendFile(firmwarePath);
+
+    res.download(firmwarePath, "firmware.bin", (err) => {
+        if (err) {
+            console.error("❌ Error sending firmware:", err);
+            return;
+        }
+
+        console.log("✅ Firmware sent. Scheduling deletion in 1 minute...");
+
+        setTimeout(() => {
+            fs.unlink(firmwarePath, (unlinkErr) => {
+                if (unlinkErr) {
+                    console.error("❌ Error deleting firmware:", unlinkErr);
+                } else {
+                    console.log("🗑️ Firmware deleted after 1 minute.");
+                }
+            });
+        }, 5000); // 5 seconds
+    });
 });
 
 
